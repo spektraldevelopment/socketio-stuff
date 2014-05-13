@@ -1,0 +1,16 @@
+#messageField {
+	display: block;
+	resize: none;
+	width: 500px;
+	height: 100px;
+}
+
+#sendButton {
+	display: block;
+}
+
+#messageBoard {
+	outline: 1px solid #000;
+	width:500px;
+	height: 500px;
+}

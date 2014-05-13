@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Socket IO Example</title>
+		<link rel="stylesheet" href="app.css">
+	</head>
+	<body>
+		<h1>Socket IO Example</h1>
+		<div id="idField"></div>
+		Message Field: <textarea id="messageField"></textarea>
+		<button id="sendButton" type="button">Send</button>
+		Message Board: <ul id="messageBoard"></ul>
+		<script src="http://localhost:9999/socket.io/socket.io.js"></script>
+		<script>
+			var 
+				clientID = null,
+				idField = document.querySelector("#idField"),
+				sendButton = document.querySelector("#sendButton"),
+				messageField = document.querySelector("#messageField");
+
+			sendButton.onclick = sendMessage;
+
+			function sendMessage() {
+				addToMessageBoard(clientID, messageField.value);
+				socket.emit('message', { client: clientID, message: messageField.value } );
+				console.log("Send Message: message: " + messageField.value);
+			}
+
+			function addToMessageBoard(client, msg) {
+				var newMsg = document.createElement('li');
+				newMsg.innerHTML = client + ": " + msg;
+				messageBoard.appendChild(newMsg);
+			}
+		</script>
+		<script>
+			var socket = io.connect('http://localhost:9999');
+
+			socket.on('connected', function (data) {
+				clientID = data.clientID;
+				idField.innerHTML = "Your client ID is: " + clientID;
+				console.log('Connected');
+			});
+
+			socket.on('onmessage', function (data) {
+				console.log('Message received: ' + data.message);
+				addToMessageBoard(data.client, data.message);
+			});
+
+			socket.on('arrived', function (data) {
+				console.log(data + ' has arrived!');
+			});
+
+			socket.on('close', function () {
+				console.log('Connection close');
+			});
+		</script>
+	</body>
+</html>
