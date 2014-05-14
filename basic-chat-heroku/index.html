@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Socket IO Basic Chat</title>
+		<link rel="stylesheet" href="app.css">
+	</head>
+	<body>
+		<h1>Socket IO Basic Chat</h1>
+		<div id="idField"></div>
+		Message Field: <textarea id="messageField"></textarea>
+		<button id="sendButton" type="button">Send</button>
+		Message Board: <ul id="messageBoard"></ul>
+		Debug: <ul id="debugMessages"></ul>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			var 
+				clientID = null,
+				idField = document.querySelector("#idField"),
+				sendButton = document.querySelector("#sendButton"),
+				messageField = document.querySelector("#messageField"),
+				debugMessages = document.querySelector("#debugMessages");;
+
+			sendButton.onclick = sendMessage;
+
+			function sendMessage() {
+				addToMessageBoard(clientID, messageField.value);
+				iosocket.emit('message', { client: clientID, message: messageField.value } );
+				console.log("Send Message: message: " + messageField.value);
+			}
+
+			function addToMessageBoard(client, msg) {
+				var newMsg = document.createElement('li');
+				newMsg.innerHTML = client + ": " + msg;
+				messageBoard.appendChild(newMsg);
+			}
+
+			function logInDebug(msg) {
+				var newDebug = document.createElement('li');
+				newDebug.innerHTML = msg;
+				debugMessages.appendChild(newDebug);
+			}
+
+		</script>
+		<script>
+			var iosocket = io.connect('http://pacific-scrubland-9163.herokuapp.com');
+
+			iosocket.on('connected', function (data) {
+				clientID = data.clientID;
+				idField.innerHTML = "Your client ID is: " + clientID;
+				console.log('Connected');
+				logInDebug('Connected');
+			});
+
+			iosocket.on('onmessage', function (data) {
+				console.log('Message received: ' + data.message);
+				addToMessageBoard(data.client, data.message);
+			});
+
+			iosocket.on('arrived', function (data) {
+				console.log(data + ' has arrived!');
+				logInDebug(data + ' has arrived!');
+			});
+
+			iosocket.on('close', function () {
+				console.log('Connection close');
+			});
+		</script>
+	</body>
+</html>
